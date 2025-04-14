@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Classificador de Prioridade</title>
+  <link rel="icon" href="https://images.seeklogo.com/logo-png/32/2/philips-logo-png_seeklogo-326304.png" type="image/png">
+
+  <style>
+    body {
+      display: flex;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fa;
+    }
+    .side-panel {
+      width: 20%;
+      padding: 10px;
+      background-color: #e3e7ed;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 2px solid #ccc;
+    }
+    .main-panel {
+      width: 60%;
+      padding: 20px;
+      background-color: #ffffff;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 2px solid #ccc;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #0a3d62;
+    }
+    .messages {
+      margin-top: 10px;
+      color: #b71540;
+    }
+    form label {
+      display: block;
+      margin: 8px 0;
+    }
+    select {
+      margin: 5px 0;
+      padding: 5px;
+    }
+    .side-panel ul {
+      padding-left: 20px;
+    }
+    .side-panel li {
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    .indicativo {
+    display: inline-block;
+    font-size: 12px;
+    color: #3f5353;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-size: small;
+}
+  </style>
+</head>
+<body>
+
+  <div class="side-panel">
+    <h2>📌 Legenda de Prioridades</h2>
+    <ul>
+      <li>🔴 1 - Crítica</li>
+      <li>🟠 2 - Alta</li>
+      <li>🟡 3 - Média</li>
+      <li>🟢 4 - Baixa</li>
+      <li>⚪ 5 - Sem prioridade</li>
+    </ul>
+  </div>
+
+  <div class="main-panel">
+    <h2>📝 Formulário de Identificação</h2>
+    <form id="incidentForm">
+      <label><input type="checkbox" id="danoPaciente"> Dano reportado ao paciente?</label>
+      <p class="indicativo">Cliente reportou que houve dano ao paciente. Como por exemplo, ficar sem medicação.</p>
+      <label><input type="checkbox" id="possivelDano"> Possível dano ao paciente?</label>
+      <p class="indicativo">Situação pode levar complicações ao tratamento do paciente.</p>
+      <label><input type="checkbox" id="sistemaFora"> Sistema/Função fora do ar?</label>
+      <select id="tipoSistemaFora" style="display:none">
+        <option value="">Selecione o tipo</option>
+        <option value="sistema">Sistema</option>
+        <option value="funcao">Função</option>
+      </select>
+      <div id="tipoFuncaoExtra" style="display:none">
+        <label><input type="radio" name="tipoFuncao" value="assistencial"> Assistencial</label>
+        <label><input type="radio" name="tipoFuncao" value="backoffice"> Backoffice</label>
+      </div>
+
+      <label><input type="checkbox" id="degradacaoServico"> Degradação no serviço?</label>
+      <p class="indicativo">Erros, lentidão ou demora e travamentos que compromentem o uso da função/serviço.</p>
+      <select id="tipoDegradacao" style="display:none">
+        <option value="erro">Erro</option>
+        <option value="lentidao">Lentidão</option>
+        <option value="travamento">Travamento</option>
+      </select>
+      <div id="tipoDegradacaoExtra" style="display:none">
+        <label><input type="radio" name="tipoDegradacaoAmbiente" value="assistencial"> Assistencial</label>
+        <label><input type="radio" name="tipoDegradacaoAmbiente" value="backoffice"> Backoffice</label>
+      </div>
+
+      <label><input type="checkbox" id="umUsuario"> Apenas um usuário afetado</label>
+      <p class="indicativo">Por exemplo, apenas um usuário está com erro.</p>
+      <label><input type="checkbox" id="multiplosUsuarios"> Múltiplos usuários afetados</label>
+      <p class="indicativo">Por exemplo, múltiplos usuários com erro.</p>
+      <label><input type="checkbox" id="operacaoCritica"> Evento compromete operação crítica?</label>
+      <p class="indicativo">Como utilização de uma função ou processo/serviço específico.</p>
+      <select id="tipoOperacao" style="display:none">
+        <option value="">Selecione</option>
+        <option value="paciente">Função vital</option>
+        <option value="financeiro">Backoffice</option>
+      </select>
+
+      <label><input type="checkbox" id="riscoSLA"> Risco de violação de SLA</label>
+      <p class="indicativo">Como quebra de tempo de atendimento ou de contrato em geral.</p>
+      <label><input type="checkbox" id="acaoImediata"> Exige ação imediata</label>
+      <p class="indicativo">Necessário atuar imediatamente.</p>
+
+      <label>Versão do Cliente:
+        <select id="versaoCliente">
+          <option value="">Selecione</option>
+          <option value="1842">1842</option>
+          <option value="1838">1838</option>
+          <option value="1835">1835</option>
+          <option value="1832">1832 ou abaixo</option>
+        </select>
+      </label>
+
+      <label>Ambiente:
+        <select id="ambiente">
+          <option value="">Selecione</option>
+          <option value="producao">Produção</option>
+          <option value="homologacao">Homologação/Testes</option>
+        </select>
+      </label>
+    </form>
+
+    <div class="result" id="resultado"></div>
+    <div class="messages" id="mensagens"></div>
+  </div>
+
+  <div class="side-panel">
+    <h2>📊 Resultado Atual</h2>
+    <p id="resultadoFinal"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('incidentForm');
+    const resultado = document.getElementById('resultado');
+    const mensagens = document.getElementById('mensagens');
+    const resultadoFinal = document.getElementById('resultadoFinal');
+
+    form.addEventListener('change', avaliar);
+
+    function emojiPrioridade(prioridade) {
+      return {
+        1: '🔴',
+        2: '🟠',
+        3: '🟡',
+        4: '🟢',
+        5: '⚪'
+      }[prioridade] || '';
+    }
+
+    function avaliar() {
+      let prioridade = 5;
+      let msgs = [];
+
+      const danoPaciente = document.getElementById('danoPaciente').checked;
+      const possivelDano = document.getElementById('possivelDano').checked;
+      const sistemaFora = document.getElementById('sistemaFora').checked;
+      const tipoSistema = document.getElementById('tipoSistemaFora').value;
+      const tipoFuncao = document.querySelector('input[name="tipoFuncao"]:checked');
+
+      const degradacao = document.getElementById('degradacaoServico').checked;
+      const tipoDegradacao = document.getElementById('tipoDegradacao').value;
+      const tipoAmbienteDegrad = document.querySelector('input[name="tipoDegradacaoAmbiente"]:checked');
+
+      const umUsuario = document.getElementById('umUsuario').checked;
+      const multiplosUsuarios = document.getElementById('multiplosUsuarios').checked;
+      const operacaoCritica = document.getElementById('operacaoCritica').checked;
+      const tipoOperacao = document.getElementById('tipoOperacao').value;
+
+      const riscoSLA = document.getElementById('riscoSLA').checked;
+      const acaoImediata = document.getElementById('acaoImediata').checked;
+
+      const versaoCliente = document.getElementById('versaoCliente').value;
+      const ambiente = document.getElementById('ambiente').value;
+
+      document.getElementById('tipoSistemaFora').style.display = sistemaFora ? 'inline' : 'none';
+      document.getElementById('tipoFuncaoExtra').style.display = (sistemaFora && tipoSistema === 'funcao') ? 'block' : 'none';
+
+      document.getElementById('tipoDegradacao').style.display = degradacao ? 'inline' : 'none';
+      document.getElementById('tipoDegradacaoExtra').style.display = degradacao ? 'block' : 'none';
+
+      document.getElementById('tipoOperacao').style.display = operacaoCritica ? 'inline' : 'none';
+
+      if (danoPaciente) prioridade = 1;
+      else if (possivelDano) prioridade = 2;
+
+      if (sistemaFora) {
+        if (tipoSistema === 'sistema') prioridade = 1;
+        if (tipoSistema === 'funcao' && tipoFuncao) {
+          if (tipoFuncao.value === 'assistencial') prioridade = 2;
+          if (tipoFuncao.value === 'backoffice') prioridade = 3;
+        }
+      }
+
+      if (degradacao && tipoAmbienteDegrad) {
+        if (tipoAmbienteDegrad.value === 'assistencial') prioridade = 2;
+        if (tipoAmbienteDegrad.value === 'backoffice') prioridade = 3;
+      }
+
+      if (multiplosUsuarios) {
+        if (prioridade !== 1) msgs.push("Alterado para Crítica por múltiplos usuários afetados.");
+        prioridade = 1;
+      }
+
+      if (operacaoCritica && tipoOperacao === 'paciente') {
+        if (prioridade !== 1 && prioridade !== 2) prioridade = 2;
+        else if (prioridade === 1) msgs.push("Operação crítica mas já está como Crítica.");
+      }
+
+      if (riscoSLA) {
+        if (prioridade > 1) prioridade -= 1;
+        msgs.push("Risco de SLA – prioridade agravada.");
+      }
+
+      if (acaoImediata) {
+        if (prioridade !== 1) prioridade = 1;
+        else msgs.push("Já é Crítica – ação imediata confirmada.");
+      }
+
+      if (["1832"].includes(versaoCliente) && prioridade >= 3) {
+        msgs.push("Versão fora da política. Verifique contrato.");
+      }
+
+      if (ambiente === 'producao') {
+        msgs.push("Base de produção.");
+      } else if (ambiente === 'homologacao' && prioridade < 3) {
+        msgs.push("Ambiente não produtivo – revisar prioridade.");
+      }
+
+      const emoji = emojiPrioridade(prioridade);
+      resultado.textContent = `Prioridade atribuída: ${emoji} ${prioridade}`;
+      resultadoFinal.textContent = `Prioridade atual: ${emoji} ${prioridade}`;
+      mensagens.innerHTML = msgs.map(m => `<div>📌 ${m}</div>`).join('');
+    }
+  </script>
+</body>
+</html>
