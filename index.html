@@ -170,7 +170,7 @@
             </label><br>
             <label>
               <input type="checkbox" name="cb_errofalha_ambiente"> O sistema apresenta erros ou falhas em ambiente.
-              <p style="color: #6c6c6c;">Sistema possui erros gerais como ao fazer login ou possui objetos inválidos.</p>
+              <p style="color: #6c6c6c;">Sistema possui erros gerais como ao fazer login ou possui objetos inválidos, porém não está inoperante.</p>
             </label><br>
             <label>
               <input type="checkbox" name="cb_um_paciuser"> Um usuário ou paciente está impossibilitado de usar o serviço.
@@ -223,13 +223,13 @@
   <script>
 
   const mensagens = {
-    cb_dano_paciente: { texto: "É um incidente Crítico!", icone: "🔴", classe: "critico", prioridade: 1 },
-    cb_sistema_parado: { texto: "É um incidente Crítico!", icone: "🔴", classe: "critico", prioridade: 1 },
-    cb_mult_paciuser: { texto: "É um incidente Crítico!", icone: "🔴", classe: "critico", prioridade: 1 },
-    cb_lent_geral: { texto: "É um incidente Crítico!", icone: "🔴", classe: "critico", prioridade: 1 },
-    cb_errofalha_ambiente: { texto: "É um incidente Alto!", icone: "🟠", classe: "alto", prioridade: 2 },
+    cb_dano_paciente: { texto: "É um incidente Crítico! E a situação deve ser reportada à qualidade (procure seu triador ou responsável).", icone: "🔴", classe: "critico", prioridade: 1 },
+    cb_sistema_parado: { texto: "É um incidente Crítico! Sistema encontra-se inoperante.", icone: "🔴", classe: "critico", prioridade: 1 },
+    cb_mult_paciuser: { texto: "É um incidente Crítico! Múltiplos usuários ou pacientes impactados.", icone: "🔴", classe: "critico", prioridade: 1 },
+    cb_lent_geral: { texto: "É um incidente Crítico! A situação anbrange o sistema por completo.", icone: "🔴", classe: "critico", prioridade: 1 },
+    cb_errofalha_ambiente: { texto: "É um incidente Alto! Sistema apresenta erros ou falhas.", icone: "🟠", classe: "alto", prioridade: 2 },
     cb_lent_esp: { texto: "É um incidente Médio a Alto a depender da função/serviço.", icone: "🟡🟠", classe: "medioalto", prioridade: 3 },
-    cb_um_paciuser: { texto: "É um incidente Médio.", icone: "🟡", classe: "medio", prioridade: 4 },
+    cb_um_paciuser: { texto: "É um incidente Médio, por ocorrer apenas com um usuário. Contudo, pode ser alto a depender da situação com o paciente.", icone: "🟡🟠", classe: "medio", prioridade: 4 },
     cb_config: { texto: "É um incidente Baixo ou Médio a depender da configuração.", icone: "🟢🟡", classe: "medio", prioridade: 4 }
   };
 
